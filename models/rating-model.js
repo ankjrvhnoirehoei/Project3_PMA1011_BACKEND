@@ -4,9 +4,9 @@ const ObjectId = Schema.ObjectId;
 
 const Rating = new Schema({   
     id: {type: ObjectId}, 
-    ratingID: {type: Number},
-    userID: {type: Number}, 
-    phoneID: {type: Number}, 
+    ratingID: {type: String},
+    userID: {type: String}, 
+    phoneID: {type: String}, 
     ratingValue: {type: Number}
 });
 

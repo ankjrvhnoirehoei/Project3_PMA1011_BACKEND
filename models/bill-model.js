@@ -4,8 +4,8 @@ const ObjectId = Schema.ObjectId;
 
 const Bill = new Schema({   
     id: {type: ObjectId}, 
-    billID: {type: Number},
-    userID: {type: Number},
+    billID: {type: String},
+    userID: {type: String},
     total: {type: Number},
     dateCreated: {type: String},
 });

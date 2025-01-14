@@ -3,7 +3,7 @@ const Schema = mongoose.Schema; //equals connection in mongodb
 const ObjectId = Schema.ObjectId;
 const User = new Schema({   
     id: {type: ObjectId}, // default id in mongodb
-    userID: {type: Number}, // ID by user
+    userID: {type: String}, // ID by user
     username: {             // username syntax
         type: String, 
         required: true, 

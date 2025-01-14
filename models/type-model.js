@@ -4,7 +4,7 @@ const ObjectId = Schema.ObjectId;
 
 const Type = new Schema({   
     id: {type: ObjectId}, 
-    typeID: {type: Number},
+    typeID: {type: String},
     type: {type: String}
 });
 

@@ -4,7 +4,7 @@ const ObjectId = Schema.ObjectId;
 
 const Brand = new Schema({   
     id: {type: ObjectId}, 
-    brandID: {type: Number},
+    brandID: {type: String},
     brand: {type: String}
 });
 

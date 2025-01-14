@@ -4,12 +4,12 @@ const ObjectId = Schema.ObjectId;
 
 const Comment = new Schema({   
     id: {type: ObjectId}, 
-    commentID: {type: Number},
+    commentID: {type: String},
     commentText: {type: String},
     dateCreated: {type: String},
     deleted: {type: Number},
-    userID: {type: Number},
-    phoneID: {type: Number}
+    userID: {type: String},
+    phoneID: {type: String}
 });
 
 module.exports = mongoose.models.Comment || mongoose.model('Comment', Comment);

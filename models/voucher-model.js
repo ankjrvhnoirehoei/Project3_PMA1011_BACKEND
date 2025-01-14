@@ -4,9 +4,9 @@ const ObjectId = Schema.ObjectId;
 
 const Voucher = new Schema({   
     id: {type: ObjectId}, 
-    voucherID: {type: Number}, 
+    voucherID: {type: String}, 
     voucherName: {type: String},
-    monetaryValue: {type: String}
+    monetaryValue: {type: Number}
 });
 
 module.exports = mongoose.models.Voucher || mongoose.model('Voucher', Voucher);
