@@ -77,14 +77,14 @@ router.post("/add", async function (req, res) {
                                 `data:${file.mimetype};base64,${file.buffer.toString('base64')}`
                             );
 
-                            const { phoneName, phonePrice, phoneBrand, phoneType, phoneSold, phoneDescription, phoneStock, phoneWarranty, phoneInStore } = req.body;
+                            const { phoneColor, phoneName, phonePrice, phoneBrand, phoneType, phoneSold, phoneDescription, phoneStock, phoneWarranty, phoneInStore } = req.body;
 
                             const hrTime = process.hrtime();
                             const milliseconds = hrTime[0] * 1000 + hrTime[1] / 1000000; // Convert seconds and nanoseconds to milliseconds
                             const phoneID = Math.floor(milliseconds);
 
                             // NOTE: in the frontend must set default values as follow: phoneSold: 0, phoneInStore: 1
-                            const newItem = { phoneID, image: base64Images, phoneName, phonePrice, phoneBrand, phoneType, phoneSold, phoneDescription, phoneStock, phoneWarranty, phoneInStore };
+                            const newItem = { phoneID, image: base64Images, phoneColor, phoneName, phonePrice, phoneBrand, phoneType, phoneSold, phoneDescription, phoneStock, phoneWarranty, phoneInStore };
 
                             await phoneModel.create(newItem);
                             res.status(200).json({

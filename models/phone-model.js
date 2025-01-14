@@ -4,9 +4,10 @@ const ObjectId = Schema.ObjectId;
 const Phone = new Schema({                  // Note: all ID are to be defined as Long in java, as taken by the milliseconds of created date
     id: {type: ObjectId},                   // default id in mongodb
     phoneID: {type: Number},                // ID by phone
-    image: [{type: String}],               // refer to the image names of the phone in a separated schema (many images for each)
+    image: [{type: String}],               // refer to the images of the phone
+    phoneColor: [{type: String}],           // phone's colors
     phoneName: {type: String},              // phone's official name
-    phonePrice: {type: Number},             // phone's price of 1
+    phonePrice: {type: Number},             // phone's price of 1 (million VND)
     phoneBrand: {type: Number},             // phone's brand (Apple, Android, etc)
     phoneType: {type: Number},              // phone's type (Smartphone, Feature phone, gaming phone, etc)
     phoneSold: {type: Number},              // phones that have been accepted and paid for
