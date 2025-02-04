@@ -6,23 +6,23 @@ const config = require("../util/config");
 
 router.post('/signup', async function(req, res) {
   try { 
-    const { username, password, address, avatarImg, starredUser, phoneNumber, boughtAmount, cancelledAmount, bannedUser, vouchersOwned } = req.body;
+    const { username, password, address, phoneNumber } = req.body;
     // Create a timestamp using process.hrtime
     const hrTime = process.hrtime();
     const milliseconds = hrTime[0] * 1000 + hrTime[1] / 1000000; // Convert seconds and nanoseconds to milliseconds
     const userID = Math.floor(milliseconds);
-    const newUser = new userModel({   //NOTE: in the frontend must set defaul values for those as follow: avatarImg: 0, starredUser: 0, boughtAmount: 0, cancelledAmount: 0, bannedUser: 0, vouchersOwned: []
+    const newUser = new userModel({   //NOTE: in the frontend must set defaul values for those as follow: avatarImg: "", starredUser: 0, boughtAmount: 0, cancelledAmount: 0, bannedUser: 0, vouchersOwned: []
       userID,           // userID is to be automatically created using the current milliseconds
       username,
       password,
       address,
-      avatarImg,
-      starredUser,
+      avatarImg : "",
+      starredUser : 0,
       phoneNumber,
-      boughtAmount,
-      cancelledAmount,
-      bannedUser,
-      vouchersOwned
+      boughtAmount : 0,
+      cancelledAmount : 0,
+      bannedUser : 0,
+      vouchersOwned : []
     });
 
     const savedUser = await newUser.save();
