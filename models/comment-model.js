@@ -7,7 +7,7 @@ const Comment = new Schema({
     commentID: {type: String},
     commentText: {type: String},
     dateCreated: {type: String},
-    deleted: {type: Number},
+    deleted: {type: Number, default: 0},
     userID: {type: String},
     phoneID: {type: String}
 });

@@ -25,7 +25,7 @@ const User = new Schema({
     boughtAmount: {type: Number, default: 0}, // amount of phone bought
     cancelledAmount: {type: Number, default: 0}, // amount of phone cancelled that counts towards the penalty
     bannedUser: {type: Number, default: 0}, // check if the user is banned, which will prevent them from using the account
-    vouchersOwned: {type: [Number], default: []} // Set default as an empty array
+    vouchersOwned: {type: [String], default: []} // Set default as an empty array
 });
 
 module.exports = mongoose.models.User || mongoose.model('User', User);

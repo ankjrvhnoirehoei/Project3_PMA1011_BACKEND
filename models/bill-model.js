@@ -6,8 +6,7 @@ const Bill = new Schema({
     id: {type: ObjectId}, 
     billID: {type: String},
     userID: {type: String},
-    total: {type: Number},
-    dateCreated: {type: String},
+    total: {type: Number, default: 0},
 });
 
 module.exports = mongoose.models.Bill || mongoose.model('Bill', Bill);

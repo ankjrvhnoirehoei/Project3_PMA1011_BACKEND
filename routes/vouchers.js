@@ -4,4 +4,183 @@ var voucherModel = require("../models/voucher-model");
 const JWT = require('jsonwebtoken');
 const config = require("../util/config");
 
+// 1. List out all vouchers
+router.get("/allVouchers", async function(req, res, next){
+    const authHeader = req.header("Authorization"); // define authHeader
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = req.header("Authorization").split (' ')[1];
+        if(token){
+            JWT.verify(token, config.SECRETKEY, async function (err, id){
+                if(err){
+                    res.status(403).json({"status": 403, "err": err});
+                }else{  // main activity goes here    
+                    try {     
+                      var list = await voucherModel.find();
+                      res.status(200).json(list);
+                    } catch (error) {
+                        res.json({status: false, message: "an error has occured"});
+                    }
+                }
+            });
+        } else{
+            res.status(401).json({status: 401, message: "Token is missing"});
+        }
+    } else {
+        res.status(401).json({status: 401, message: "Authorization header missing or malformed"});
+    }
+});
+
+// 2. Add a new voucher
+router.post("/add", async function (req, res) {
+    const authHeader = req.header("Authorization"); //define authHeader
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = req.header("Authorization").split(' ')[1];
+        if (token) {
+            JWT.verify(token, config.SECRETKEY, async function (err, id) {
+                if (err) {
+                    res.status(403).json({ "status": 403, "err": err });
+                } else {  //main activity goes here
+                    const {voucherName, monetaryValue} = req.body;
+                    // Create a timestamp using process.hrtime
+                    const hrTime = process.hrtime();
+                    const milliseconds = hrTime[0] * 1000 + hrTime[1] / 1000000; // Convert seconds and nanoseconds to milliseconds
+                    const voucherID = Math.floor(milliseconds);
+
+                    const newItem = {   
+                        voucherID,           // voucherID is to be automatically created using the current milliseconds
+                        voucherName,
+                        monetaryValue
+                    };
+                    
+                    await voucherModel.create(newItem);
+                    res.status(200).json({
+                        status: true,
+                        message: "New voucher was created successfully",
+                    });
+                }
+            }); // Closing the JWT.verify callback
+        } else {
+            res.status(401).json({ status: 401, message: "Token is missing" });
+        }
+    } else {
+        res.status(401).json({ status: 401, message: "Authorization header missing or malformed" });
+    }
+});
+
+// 3. Edit a voucher's info
+router.post("/edit", async function(req, res, next){
+  const authHeader = req.header("Authorization"); // define authHeader
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = req.header("Authorization").split (' ')[1];
+      if(token){
+          JWT.verify(token, config.SECRETKEY, async function (err, id){
+              if(err){
+                  res.status(403).json({"status": 403, "err": err});
+              }else{  // main activity goes here                  
+                  try {
+                    const {voucherID, voucherName, monetaryValue} = req.body;  // Extract fields to update
+
+                    // Validate voucherID is provided
+                    if (!voucherID) {
+                      return res.status(400).json({ status: false, message: "voucherID is required" });
+                    }
+        
+                    // Create an object with only the fields that are provided for update
+                    const updateData = {};
+                    if (voucherName) updateData.voucherName = voucherName;
+                    if (monetaryValue) updateData.monetaryValue = monetaryValue;
+
+                    // Find the voucher by voucherID and update the provided fields
+                    const updateVoucher = await voucherModel.findOneAndUpdate(
+                      { voucherID: voucherID },      // Search by voucherID
+                      { $set: updateData },     // Update only the fields provided in req.body
+                      { new: true }             // Return the updated document
+                    );
+        
+                    // If the voucher is not found
+                    if (!updateVoucher) {
+                      return res.status(404).json({ status: false, message: "voucher not found" });
+                    }
+        
+                    // Successfully updated
+                    res.json({
+                      status: true,
+                      message: "voucher updated successfully",
+                      // updateVoucher: updateVoucher
+                    });
+                  } catch (error) {
+                      res.json({status: false, message: "an error has occured"});
+                  }
+              }
+          });
+      } else{
+          res.status(401).json({status: 401, message: "Token is missing"});
+      }
+  } else {
+      res.status(401).json({status: 401, message: "Authorization header missing or malformed"});
+  }
+});
+
+// 4. Search for vouchers by name
+router.get("/findVouchers", async function (req, res) {
+  const authHeader = req.header("Authorization"); // define authHeader
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = req.header("Authorization").split (' ')[1];
+      if(token){
+          JWT.verify(token, config.SECRETKEY, async function (err, id){
+              if(err){
+                  res.status(403).json({"status": 403, "err": err});
+              }else{  // main activity goes here
+                try {
+                    const {search} = req.body;
+                    if (!search) {
+                      return res.status(400).json({status: false, message: "Search parameter is required"});
+                    }
+                  
+                    // Use regex to search approximately
+                    const regex = new RegExp(search, 'i'); // 'i' makes it case-insensitive
+                  
+                    // Use $regex 
+                    var list = await voucherModel.find({voucherName: {$regex: regex}});
+                    res.json(list);
+                  } catch (error) {
+                    res.json({status: false, message: "An error has occurred"});
+                  }
+                  
+              }
+          });
+      } else{
+          res.status(401).json({status: 401, message: "Token is missing"});
+      }
+  } else {
+      res.status(401).json({status: 401, message: "Authorization header missing or malformed"});
+  }
+});
+
+// 5. Sort vouchers by monetary value
+router.get("/sort", async function (req, res) {
+    const authHeader = req.header("Authorization"); //define authHeader
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = req.header("Authorization").split (' ')[1];
+        if(token){
+            JWT.verify(token, config.SECRETKEY, async function (err, id){
+                if(err){
+                    res.status(403).json({"status": 403, "err": err});
+                }else{  //main activity goes here
+                    try {
+                        var list = await voucherModel.find().sort({monetaryValue: 1});
+                        res.status(200).json(list);
+                    } catch (error) {
+                        res.status(400).json({status: false, message: "an error has occured"});
+                    }
+                }
+            });
+        } else{
+            res.status(401).json({status: 401, message: "Token is missing"});
+        }
+    } else {
+        res.status(401).json({status: 401, message: "Authorization header missing or malformed"});
+    }
+});
+
 module.exports = router;
