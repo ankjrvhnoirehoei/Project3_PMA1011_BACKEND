@@ -19,13 +19,13 @@ const User = new Schema({
         required: true
     },
     address: {type: String}, // address of user
-    avatarImg: {type: String},  // img url from image-model
-    starredUser: {type: Number}, // marked user that is considered as a vip
+    avatarImg: {type: String, default: ""},  // img url from image-model
+    starredUser: {type: Number, default: 0}, // marked user that is considered as a vip
     phoneNumber: {type: String}, 
-    boughtAmount: {type: Number}, // amount of phone bought
-    cancelledAmount: {type: Number}, // amount of phone cancelled that counts towards the penalty
-    bannedUser: {type: Number}, // check if the user is banned, which will prevent them from using the account
-    vouchersOwned: [{type: Number}] // all vouchers owned by user
+    boughtAmount: {type: Number, default: 0}, // amount of phone bought
+    cancelledAmount: {type: Number, default: 0}, // amount of phone cancelled that counts towards the penalty
+    bannedUser: {type: Number, default: 0}, // check if the user is banned, which will prevent them from using the account
+    vouchersOwned: {type: [Number], default: []} // Set default as an empty array
 });
 
 module.exports = mongoose.models.User || mongoose.model('User', User);
