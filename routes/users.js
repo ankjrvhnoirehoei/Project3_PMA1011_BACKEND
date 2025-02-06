@@ -108,7 +108,7 @@ router.post("/edit", async function(req, res, next){
                   }      
                   
                   try {
-                    const {userID, username, password, address, avatarImg, starredUser, phoneNumber, boughtAmount, cancelledAmount, bannedUser, vouchersOwned} = req.body;  // Extract fields to update
+                    const {userID, username, password, address, starredUser, phoneNumber, boughtAmount, cancelledAmount, bannedUser, vouchersOwned} = req.body;  // Extract fields to update
 
                     // Validate userID is provided
                     if (!userID) {

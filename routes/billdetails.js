@@ -223,11 +223,11 @@ router.post("/edit", async function(req, res, next) {
 
                         // Create an object with only the fields that are provided for update
                         const updateData = {};
-                        if (billID) updateData.billID = billID;
-                        if (phoneID) updateData.phoneID = phoneID;
+                        // if (billID) updateData.billID = billID;
+                        // if (phoneID) updateData.phoneID = phoneID;
                         if (quantity) updateData.quantity = quantity;
 
-                        let phoneUpdateNeeded = false;
+                        var phoneUpdateNeeded = false;
 
                         // Fetch the corresponding user by the existing bill ID (assuming billID is linked to users)
                         const bill = await billModel.findOne({ billID: existingBillDetail.billID });
@@ -250,6 +250,15 @@ router.post("/edit", async function(req, res, next) {
                                 await phoneModel.updateOne(
                                     { phoneID: existingBillDetail.phoneID },
                                     { $set: { phoneStock: newStock, phoneInStore: 1 } }
+                                );
+
+                                // Calculate the total for this bill detail
+                                const billDetailTotal = phone.phonePrice * existingBillDetail.quantity;
+
+                                // Subtract the total of this bill detail from the bill's total
+                                await billModel.updateOne(
+                                    { billID: existingBillDetail.billID },
+                                    { $inc: { total: -billDetailTotal } } // Subtract this bill detail's total
                                 );
 
                                 // Increase user's cancelledAmount
@@ -292,25 +301,30 @@ router.post("/edit", async function(req, res, next) {
                             updateData.status = status;
                         }
 
-                        // Case 2: Handle phoneID or quantity change and update total
-                        if (phoneID || quantity) {
+                        // Case 2: Handle quantity change and update total
+                        if (quantity) {
                             const oldPhone = await phoneModel.findOne({ phoneID: existingBillDetail.phoneID });
-                            const newPhone = phoneID ? await phoneModel.findOne({ phoneID }) : oldPhone;
-
-                            if (!newPhone || !oldPhone) {
+                            if (!oldPhone) {
                                 return res.status(404).json({ status: false, message: "Phone not found" });
                             }
 
-                            // Calculate old total (using current phoneID and quantity)
+                            // Calculate old total (using current quantity)
                             const oldTotal = oldPhone.phonePrice * existingBillDetail.quantity;
 
-                            // Calculate new total (using new phoneID or new quantity)
-                            const newTotal = newPhone.phonePrice * (quantity || existingBillDetail.quantity);
+                            // Calculate new total (using new quantity)
+                            const newTotal = oldPhone.phonePrice * quantity;
 
                             // Update total in the bills schema
                             await billModel.updateOne(
                                 { billID: existingBillDetail.billID },
                                 { $inc: { total: -oldTotal + newTotal } }
+                            );
+
+                            // Adjust phone stock based on the difference between old and new quantity
+                            const quantityDifference = quantity - existingBillDetail.quantity;
+                            await phoneModel.updateOne(
+                                { phoneID: oldPhone.phoneID },
+                                { $inc: { phoneStock: -quantityDifference } } // Subtract the difference from stock
                             );
                         }
 
