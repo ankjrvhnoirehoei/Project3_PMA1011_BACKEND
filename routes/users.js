@@ -42,20 +42,35 @@ router.post('/signup', async function(req, res) {
 // 2. login for existing users
 router.post("/login", async function (req, res) {
   try {
-    const {username, password} = req.body;
-    const chkUser = await userModel.findOne({username: username, password: password});
+    const { username, password } = req.body;
+
+    // Find the user by username and password
+    const chkUser = await userModel.findOne({ username: username, password: password });
+
     if (chkUser == null) {
-      res.status(404).json({status: false, message: "login failed"});
+      // If no user is found, return a login failed message
+      res.status(404).json({ status: false, message: "login failed" });
     } else {
-      const token = JWT.sign({id: userModel._id}, config.SECRETKEY,{expiresIn: '3000s'});
-      const refreshToken = JWT.sign({id: userModel._id}, config.SECRETKEY,{expiresIn: '1h'});
-      res.status(200).json({status: true, message: "login successfully", token: token, refreshToken: refreshToken});
+      // Check if the user is banned
+      if (chkUser.bannedUser === 1) {
+        // If the user is banned, return an error message
+        return res.status(403).json({ status: false, message: "Account is banned. Please contact support." });
+      }
+
+      // If the user is not banned, proceed with login and token generation
+      const token = JWT.sign({ id: chkUser._id }, config.SECRETKEY, { expiresIn: '3000s' });
+      const refreshToken = JWT.sign({ id: chkUser._id }, config.SECRETKEY, { expiresIn: '1h' });
+
+      // Return successful login response with tokens
+      res.status(200).json({ status: true, message: "login successfully", token: token, refreshToken: refreshToken });
     }
   } catch (error) {
-    res.status(404).json({status: false, message: "an error has occured " + error});
-    console.log(config.SECRETKEY);
+    // Handle any errors that occur during the login process
+    res.status(500).json({ status: false, message: "An error has occurred: " + error.message });
+    console.log(error);
   }
 });
+
 
 // 3. view all users as admin
 router.get("/allUsers", async function(req, res, next){
@@ -221,14 +236,19 @@ router.get("/sort", async function (req, res) {
             // Extract sort option from query parameters (instead of req.body)
             const { sortBy } = req.query;
             let sortCondition = {};
+            let filterCondition = {};
 
-            // Define sorting conditions based on the field requested
+            // Define sorting or filtering conditions based on the field requested
             if (sortBy === "boughtAmount") {
               sortCondition = { boughtAmount: -1 }; // Sort by boughtAmount in descending order
             } else if (sortBy === "cancelledAmount") {
               sortCondition = { cancelledAmount: -1 }; // Sort by cancelledAmount in descending order
             } else if (sortBy === "vouchersOwned") {
               sortCondition = { vouchersCount: -1 }; // Sort by the length of vouchersOwned in descending order
+            } else if (sortBy === "bannedUser") {
+              filterCondition = { bannedUser: 1 }; // Filter users with bannedUser equal to 1
+            } else if (sortBy === "starredUser") {
+              filterCondition = { starredUser: 1 }; // Filter users with starredUser equal to 1
             } else {
               return res.status(400).json({ status: false, message: "Invalid sort option" });
             }
@@ -242,12 +262,17 @@ router.get("/sort", async function (req, res) {
             }
 
             // Add the sorting condition to the pipeline or apply directly to find
-            aggregatePipeline.push({ $sort: sortCondition });
+            if (Object.keys(sortCondition).length > 0) {
+              aggregatePipeline.push({ $sort: sortCondition });
+            }
 
-            // Execute the query using aggregation if vouchersOwned is included, otherwise use normal find with sort
+            // Execute the query using aggregation if vouchersOwned is included, 
+            // or filter using normal find for bannedUser and starredUser, or apply sort for others.
             let list;
             if (sortBy === "vouchersOwned") {
               list = await userModel.aggregate(aggregatePipeline);
+            } else if (sortBy === "bannedUser" || sortBy === "starredUser") {
+              list = await userModel.find(filterCondition);
             } else {
               list = await userModel.find().sort(sortCondition);
             }
