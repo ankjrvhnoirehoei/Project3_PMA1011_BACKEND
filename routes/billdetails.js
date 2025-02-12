@@ -146,7 +146,7 @@ router.get("/billFullDetails", async function(req, res, next){
                         }
 
                         // Return the list of bills
-                        res.json({totalPhone: parseInt(bills.length), bills});
+                        res.json(bills);
                     } catch (error) {
                         res.json({status: false, message: "an error has occured"});
                     }
