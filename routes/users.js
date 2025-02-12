@@ -62,7 +62,7 @@ router.post("/login", async function (req, res) {
       const refreshToken = JWT.sign({ id: chkUser._id }, config.SECRETKEY, { expiresIn: '1h' });
 
       // Return successful login response with tokens
-      res.status(200).json({ status: true, message: "login successfully", token: token, refreshToken: refreshToken });
+      res.status(200).json({ status: true, message: "login successfully", token: token, refreshToken: refreshToken, userID: chkUser.userID });
     }
   } catch (error) {
     // Handle any errors that occur during the login process
