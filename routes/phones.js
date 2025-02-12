@@ -311,5 +311,32 @@ router.get("/sort", async function (req, res) {
     res.status(401).json({ status: 401, message: "Authorization header missing or malformed" });
   }
 });
-  
+
+// 6. get 1 phone for displaying in the product detail pages
+router.get("/onePhone", async function(req, res, next){
+  const authHeader = req.header("Authorization"); // define authHeader
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = req.header("Authorization").split (' ')[1];
+      if(token){
+          JWT.verify(token, config.SECRETKEY, async function (err, id){
+              if(err){
+                  res.status(403).json({"status": 403, "err": err});
+              }else{  // main activity goes here
+                  try {
+                      const { phoneID } = req.query;
+                      var onePhone = await phoneModel.findOne({phoneID : phoneID});
+                      res.status(200).json(onePhone);
+                  } catch (error) {
+                      res.json({status: false, message: "an error has occured"});
+                  }
+              }
+          });
+      } else{
+          res.status(401).json({status: 401, message: "Token is missing"});
+      }
+  } else {
+      res.status(401).json({status: 401, message: "Authorization header missing or malformed"});
+  }
+});
+
 module.exports = router;
