@@ -313,7 +313,7 @@ router.get("/sort", async function (req, res) {
 });
 
 // 6. get 1 phone for displaying in the product detail pages
-router.post("/onePhone", async function(req, res, next){
+router.get("/onePhone", async function(req, res, next){
   const authHeader = req.header("Authorization"); // define authHeader
   if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = req.header("Authorization").split (' ')[1];
