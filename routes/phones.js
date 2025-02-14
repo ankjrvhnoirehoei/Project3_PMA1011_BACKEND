@@ -324,7 +324,7 @@ router.get("/onePhone", async function(req, res, next){
               }else{  // main activity goes here
                   try {
                       const { phoneID } = req.query;
-                      var onePhone = await phoneModel.findOne({phoneID : phoneID});
+                      const onePhone = await phoneModel.findOne({phoneID : phoneID});
                       res.status(200).json(onePhone);
                   } catch (error) {
                       res.json({status: false, message: "an error has occured"});
